@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wer wird Millionär? – Jugend-Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep: #02061a;
+    --bg-mid: #0a1849;
+    --bg-light: #1a3a8a;
+    --gold: #ffd34a;
+    --gold-bright: #fff09a;
+    --gold-deep: #b8860b;
+    --orange: #ff8a1c;
+    --green: #2bd45a;
+    --red: #ef2a3a;
+    --white: #ffffff;
+    --silver: #b6c8e0;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-deep);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    user-select: none;
+  }
+
+  /* Stage backdrop */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, #1e3da8 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 100%, #0a1849 0%, transparent 60%),
+      linear-gradient(180deg, #02061a 0%, #050d33 50%, #02061a 100%);
+    z-index: -2;
+  }
+
+  /* Spotlight beams */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      conic-gradient(from 90deg at 50% 100%,
+        transparent 0deg,
+        rgba(255, 211, 74, 0.04) 30deg,
+        transparent 60deg,
+        rgba(255, 211, 74, 0.06) 100deg,
+        transparent 130deg,
+        rgba(255, 211, 74, 0.04) 200deg,
+        transparent 230deg,
+        rgba(255, 211, 74, 0.06) 270deg,
+        transparent 310deg);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .stage {
+    height: 100vh;
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    grid-template-rows: auto 1fr auto;
+    gap: 1.5vh 2vw;
+    padding: 2.5vh 3vw;
+  }
+
+  /* ===== Header / Logo ===== */
+  header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1vh;
+    border-bottom: 1px solid rgba(255, 211, 74, 0.2);
+  }
+
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(1.8rem, 3.6vw, 3.2rem);
+    letter-spacing: 0.04em;
+    background: linear-gradient(180deg, #fff09a 0%, #ffd34a 40%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 211, 74, 0.3);
+    line-height: 1;
+  }
+  .logo small {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.32em;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    -webkit-text-fill-color: var(--gold);
+    margin-top: 0.4em;
+    opacity: 0.85;
+  }
+
+  /* ===== Jokers ===== */
+  .jokers {
+    display: flex;
+    gap: 1.2vw;
+  }
+
+  .joker {
+    width: clamp(60px, 5.5vw, 90px);
+    height: clamp(60px, 5.5vw, 90px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #1e3da8, #050d33);
+    border: 3px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(0.75rem, 1.1vw, 1rem);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1;
+    padding: 4px;
+    box-shadow: 0 0 20px rgba(255, 211, 74, 0.25), inset 0 0 15px rgba(255, 211, 74, 0.15);
+    position: relative;
+  }
+  .joker:hover:not(.used) {
+    transform: scale(1.08);
+    box-shadow: 0 0 30px rgba(255, 211, 74, 0.6), inset 0 0 20px rgba(255, 211, 74, 0.25);
+  }
+  .joker.used {
+    opacity: 0.25;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+  }
+  .joker.used::after {
+    content: '✕';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5em;
+    color: var(--red);
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+  }
+
+  /* ===== Money Ladder ===== */
+  .ladder {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    gap: 0.4vh;
+    padding: 1vh 0;
+    overflow: hidden;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+    padding: 0.8vh 1vw;
+    border-radius: 999px;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(0.75rem, 1.05vw, 1.05rem);
+    color: var(--gold);
+    transition: all 0.4s cubic-bezier(.4,1.6,.4,1);
+    border: 1px solid transparent;
+  }
+  .step .num {
+    width: 2em;
+    text-align: right;
+    color: var(--silver);
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+  .step .amount {
+    flex: 1;
+  }
+  .step.safe { color: var(--white); }
+  .step.safe .num { color: var(--gold); opacity: 1; }
+  .step.current {
+    background: linear-gradient(90deg, var(--orange) 0%, #ffb347 100%);
+    color: #2a1500;
+    box-shadow: 0 0 25px rgba(255, 138, 28, 0.6);
+    transform: scale(1.04);
+    border-color: var(--gold-bright);
+  }
+  .step.current .num { color: #2a1500; opacity: 1; }
+  .step.won {
+    background: rgba(43, 212, 90, 0.15);
+    color: var(--green);
+  }
+  .step.won .num { color: var(--green); }
+
+  /* ===== Question Area ===== */
+  .arena {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 2vh;
+    min-height: 0;
+  }
+
+  .question-box {
+    position: relative;
+    padding: 4vh 4vw;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(10, 24, 73, 0.95), rgba(30, 61, 168, 0.85));
+    border: 2px solid var(--gold);
+    box-shadow:
+      0 0 40px rgba(255, 211, 74, 0.25),
+      inset 0 0 30px rgba(0, 0, 0, 0.4);
+    text-align: center;
+  }
+  .question-box::before, .question-box::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--gold);
+  }
+  .question-box::before {
+    top: -2px; left: -2px;
+    border-right: none; border-bottom: none;
+    border-top-left-radius: 30px;
+  }
+  .question-box::after {
+    bottom: -2px; right: -2px;
+    border-left: none; border-top: none;
+    border-bottom-right-radius: 30px;
+  }
+
+  .q-number {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+    letter-spacing: 0.3em;
+    margin-bottom: 1vh;
+  }
+
+  .question {
+    font-size: clamp(1.4rem, 2.6vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--white);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+  }
+
+  /* ===== Answers ===== */
+  .answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5vh 2vw;
+  }
+
+  .answer {
+    position: relative;
+    padding: 2.2vh 1.5vw 2.2vh 4vw;
+    background: linear-gradient(180deg, #0a1849 0%, #050d33 100%);
+    border: 2px solid var(--gold);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1rem, 1.6vw, 1.5rem);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    clip-path: polygon(3% 0, 97% 0, 100% 50%, 97% 100%, 3% 100%, 0 50%);
+    overflow: hidden;
+  }
+  .answer .letter {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    margin-right: 0.8em;
+    font-size: 1.1em;
+  }
+  .answer:hover:not(.locked):not(.revealed):not(.eliminated) {
+    background: linear-gradient(180deg, #1e3da8 0%, #0a1849 100%);
+    box-shadow: 0 0 25px rgba(255, 211, 74, 0.4);
+  }
+  .answer.locked {
+    background: linear-gradient(180deg, #ff8a1c 0%, #c25a00 100%);
+    color: #2a1500;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .answer.locked .letter { color: #2a1500; }
+  .answer.correct {
+    background: linear-gradient(180deg, #2bd45a 0%, #128a32 100%);
+    color: var(--white);
+    animation: correctFlash 0.6s ease-out 3;
+    box-shadow: 0 0 40px rgba(43, 212, 90, 0.7);
+  }
+  .answer.wrong {
+    background: linear-gradient(180deg, #ef2a3a 0%, #8a0010 100%);
+    color: var(--white);
+    box-shadow: 0 0 40px rgba(239, 42, 58, 0.7);
+  }
+  .answer.eliminated {
+    opacity: 0.15;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 25px rgba(255, 138, 28, 0.6); }
+    50% { box-shadow: 0 0 50px rgba(255, 138, 28, 1); }
+  }
+  @keyframes correctFlash {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.5); }
+  }
+
+  /* ===== Controls ===== */
+  .controls {
+    grid-column: 1;
+    grid-row: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1vh;
+  }
+
+  .hint {
+    color: var(--silver);
+    font-size: 0.85rem;
+    opacity: 0.6;
+    letter-spacing: 0.1em;
+  }
+  .hint kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255, 211, 74, 0.15);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    color: var(--gold);
+    font-family: monospace;
+    margin: 0 2px;
+  }
+
+  .btn-row { display: flex; gap: 1vw; }
+
+  .btn {
+    padding: 1.2vh 2vw;
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(0.85rem, 1.1vw, 1rem);
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.25s;
+  }
+  .btn:hover { background: var(--gold); color: var(--bg-deep); transform: translateY(-2px); }
+  .btn.primary { background: var(--gold); color: var(--bg-deep); }
+  .btn.primary:hover { background: var(--gold-bright); }
+
+  /* ===== Audience Poll Overlay ===== */
+  .poll-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 26, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .poll-overlay.show { display: flex; }
+  .poll-box {
+    background: linear-gradient(135deg, #0a1849, #1e3da8);
+    border: 2px solid var(--gold);
+    border-radius: 24px;
+    padding: 5vh 5vw;
+    box-shadow: 0 0 60px rgba(255, 211, 74, 0.3);
+    min-width: 60vw;
+  }
+  .poll-title {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 3vh;
+    letter-spacing: 0.2em;
+  }
+  .poll-bars { display: flex; gap: 2vw; align-items: flex-end; height: 40vh; }
+  .poll-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1vh; }
+  .poll-bar .bar-fill {
+    width: 100%;
+    background: linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%);
+    border-radius: 8px 8px 0 0;
+    transition: height 1.2s cubic-bezier(.4,1.6,.4,1);
+    height: 0;
+    box-shadow: 0 0 20px rgba(255, 211, 74, 0.4);
+  }
+  .poll-bar .bar-pct { font-weight: 700; font-size: 1.5rem; color: var(--white); }
+  .poll-bar .bar-letter { font-family: 'Cinzel', serif; font-weight: 700; font-size: 2rem; color: var(--gold); }
+  .poll-close {
+    display: block;
+    margin: 3vh auto 0;
+  }
+
+  /* ===== Selection / Auswahlfrage Overlay ===== */
+  .selection-overlay {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, #1e3da8 0%, transparent 55%),
+      radial-gradient(ellipse at center, #0a1849 0%, #02061a 75%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+    padding: 4vh 4vw;
+    animation: winFade 0.5s ease-out;
+  }
+  .selection-overlay.show { display: flex; }
+  .selection-box {
+    width: 100%;
+    max-width: 1300px;
+    text-align: center;
+  }
+  .selection-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 4rem);
+    letter-spacing: 0.3em;
+    background: linear-gradient(180deg, #fff09a 0%, #ffd34a 40%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 211, 74, 0.3);
+    margin-bottom: 0.5vh;
+    line-height: 1;
+  }
+  .selection-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: var(--silver);
+    letter-spacing: 0.25em;
+    font-size: clamp(0.85rem, 1.2vw, 1.1rem);
+    margin-bottom: 4vh;
+    text-transform: uppercase;
+  }
+  .selection-prompt {
+    font-size: clamp(1.2rem, 2.2vw, 2rem);
+    font-weight: 700;
+    color: var(--white);
+    margin: 0 auto 4vh;
+    padding: 2.5vh 3vw;
+    background: linear-gradient(135deg, rgba(10, 24, 73, 0.9), rgba(30, 61, 168, 0.7));
+    border: 2px solid var(--gold);
+    border-radius: 24px;
+    box-shadow: 0 0 30px rgba(255, 211, 74, 0.2);
+    max-width: 90%;
+  }
+  .selection-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2vh 2vw;
+    margin-bottom: 3vh;
+  }
+  .selection-item {
+    padding: 2.2vh 2vw 2.2vh 4vw;
+    background: linear-gradient(180deg, #0a1849 0%, #050d33 100%);
+    border: 2px solid var(--gold);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1rem, 1.5vw, 1.4rem);
+    text-align: left;
+    clip-path: polygon(3% 0, 97% 0, 100% 50%, 97% 100%, 3% 100%, 0 50%);
+  }
+  .selection-item .letter {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    margin-right: 0.8em;
+    font-size: 1.2em;
+  }
+  .selection-result {
+    min-height: 6vh;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.6vw, 2.4rem);
+    letter-spacing: 0.15em;
+    color: var(--green);
+    text-shadow: 0 0 25px rgba(43, 212, 90, 0.5);
+    margin-bottom: 3vh;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .selection-result.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .selection-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
+    flex-wrap: wrap;
+  }
+
+  /* ===== Win screen ===== */
+  .win-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #1e3da8 0%, #02061a 70%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 200;
+    animation: winFade 1s ease-out;
+  }
+  .win-overlay.show { display: flex; }
+  @keyframes winFade { from { opacity: 0; } to { opacity: 1; } }
+  .win-text {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    text-align: center;
+  }
+  .win-text .top {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    color: var(--gold);
+    letter-spacing: 0.4em;
+  }
+  .win-text .amount {
+    font-size: clamp(4rem, 10vw, 9rem);
+    background: linear-gradient(180deg, #fff09a 0%, #ffd34a 40%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 2vh 0;
+    text-shadow: 0 0 60px rgba(255, 211, 74, 0.6);
+  }
+  .win-text .sub {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1rem, 1.8vw, 1.5rem);
+    color: var(--white);
+    letter-spacing: 0.2em;
+  }
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--gold);
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <header>
+    <div class="logo">
+      WER WIRD MILLIONÄR?
+      <small>BIBEL·EDITION</small>
+    </div>
+    <div class="jokers">
+      <button class="joker" id="joker-50" title="50:50 Joker">50:50</button>
+      <button class="joker" id="joker-telefon" title="Jugendleiter-Joker">JUGEND·LEITER</button>
+    </div>
+  </header>
+
+  <div class="arena">
+    <div class="question-box">
+      <div class="q-number" id="qNumber">FRAGE 1 · UM 50 €</div>
+      <div class="question" id="qText">Lade Frage…</div>
+    </div>
+    <div class="answers" id="answers">
+      <button class="answer" data-idx="0"><span class="letter">A:</span><span class="text"></span></button>
+      <button class="answer" data-idx="1"><span class="letter">B:</span><span class="text"></span></button>
+      <button class="answer" data-idx="2"><span class="letter">C:</span><span class="text"></span></button>
+      <button class="answer" data-idx="3"><span class="letter">D:</span><span class="text"></span></button>
+    </div>
+  </div>
+
+  <div class="ladder" id="ladder"></div>
+
+  <div class="controls">
+    <div class="hint">
+      <kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> wählen ·
+      <kbd>↵</kbd> auflösen ·
+      <kbd>␣</kbd> weiter ·
+      <kbd>1</kbd> 50:50 ·
+      <kbd>3</kbd> Jugendleiter
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="btnReveal">AUFLÖSEN</button>
+      <button class="btn primary" id="btnNext">WEITER</button>
+      <button class="btn" id="btnReset">NEU STARTEN</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Selection round overlay -->
+<div class="selection-overlay" id="selectionOverlay">
+  <div class="selection-box">
+    <div class="selection-title">AUSWAHLFRAGE</div>
+    <div class="selection-subtitle">Wer ordnet richtig und am schnellsten?</div>
+    <div class="selection-prompt" id="selectionPrompt"></div>
+    <div class="selection-items" id="selectionItems"></div>
+    <div class="selection-result" id="selectionResult"></div>
+    <div class="selection-buttons">
+      <button class="btn" id="btnSelectionReveal">AUFLÖSEN</button>
+      <button class="btn primary" id="btnSelectionContinue">SPIEL STARTEN</button>
+    </div>
+  </div>
+</div>
+
+<!-- Win overlay -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-text">
+    <div class="top">HERZLICHEN GLÜCKWUNSCH!</div>
+    <div class="amount" id="winAmount">1.000.000 €</div>
+    <div class="sub">DU BIST MILLIONÄR!</div>
+  </div>
+  <button class="btn primary" style="margin-top: 5vh;" id="btnWinClose">NEUE RUNDE</button>
+</div>
+
+<script>
+// ==================== QUESTION POOL ====================
+// Bibel-Fragen – anspruchsvolle Edition
+const QUESTION_POOL = [
+  // Altes Testament – Urgeschichte & Patriarchen
+  { q: "Wie hießen die drei Söhne Noahs?", a: ["Adam, Seth, Henoch", "Sem, Ham und Jafet", "Kain, Abel, Set", "Isaak, Ismael, Josef"], correct: 1 },
+  { q: "Auf welchem Berg landete die Arche nach der Sintflut?", a: ["Sinai", "Ararat", "Karmel", "Zion"], correct: 1 },
+  { q: "Wie alt wurde Methusalem laut der Bibel?", a: ["600 Jahre", "800 Jahre", "969 Jahre", "1000 Jahre"], correct: 2 },
+  { q: "Wer wurde fast von seinem Vater geopfert?", a: ["Ismael", "Isaak", "Jakob", "Esau"], correct: 1 },
+  { q: "Wer war Jakobs Zwillingsbruder?", a: ["Esau", "Levi", "Ruben", "Juda"], correct: 0 },
+  { q: "Wie hieß Jakobs Lieblingsfrau?", a: ["Lea", "Rahel", "Bilha", "Silpa"], correct: 1 },
+  { q: "Wie viele Söhne hatte Jakob?", a: ["7", "10", "12", "14"], correct: 2 },
+  { q: "Wer wurde von seinen Brüdern nach Ägypten verkauft?", a: ["Josef", "Benjamin", "Juda", "Levi"], correct: 0 },
+
+  // Mose & Auszug aus Ägypten
+  { q: "Wer war Moses älterer Bruder?", a: ["Aaron", "Josua", "Pinchas", "Eleasar"], correct: 0 },
+  { q: "Welche letzte Plage tötete die Erstgeborenen Ägyptens?", a: ["die siebte", "die neunte", "die zehnte", "die zwölfte"], correct: 2 },
+  { q: "Welches Meer teilte sich für Mose und das Volk Israel?", a: ["Mittelmeer", "Schilfmeer", "Totes Meer", "See Genezareth"], correct: 1 },
+  { q: "Auf welchem Berg empfing Mose die Gebote?", a: ["Zion", "Sinai", "Karmel", "Tabor"], correct: 1 },
+  { q: "Wie lange wanderte das Volk Israel durch die Wüste?", a: ["7 Jahre", "12 Jahre", "40 Jahre", "70 Jahre"], correct: 2 },
+  { q: "Wer führte die Israeliten nach Mose ins Gelobte Land?", a: ["Aaron", "Josua", "Kaleb", "Samuel"], correct: 1 },
+  { q: "Welche Stadt fiel, als die Israeliten um sie herum marschierten?", a: ["Jerusalem", "Jericho", "Bethlehem", "Samaria"], correct: 1 },
+
+  // Könige & Propheten
+  { q: "Welcher Prophet salbte David zum König?", a: ["Elia", "Samuel", "Natan", "Elischa"], correct: 1 },
+  { q: "Wer war Bathsebas erster Mann?", a: ["Joab", "Uria", "Ahimelech", "Nathan"], correct: 1 },
+  { q: "Wer war die Mutter Salomos?", a: ["Mirjam", "Michal", "Bathseba", "Abigail"], correct: 2 },
+  { q: "Wer baute den ersten Tempel in Jerusalem?", a: ["David", "Salomo", "Esra", "Nehemia"], correct: 1 },
+  { q: "Welcher Sohn Davids führte einen Aufstand gegen ihn an?", a: ["Salomo", "Absalom", "Adonija", "Amnon"], correct: 1 },
+  { q: "Welches Volk zerstörte 586 v. Chr. den ersten Tempel?", a: ["Assyrer", "Babylonier", "Perser", "Römer"], correct: 1 },
+  { q: "Welcher persische König erlaubte den Wiederaufbau Jerusalems?", a: ["Darius", "Xerxes", "Kyrus", "Nebukadnezar"], correct: 2 },
+  { q: "Wer leitete den Wiederaufbau der Stadtmauern Jerusalems?", a: ["Esra", "Nehemia", "Sacharja", "Haggai"], correct: 1 },
+  { q: "Wer überlebte unverletzt in der Löwengrube?", a: ["Hiob", "Jona", "Daniel", "Jeremia"], correct: 2 },
+  { q: "Wie hießen Daniels drei Freunde im Feuerofen?", a: ["Mose, Aaron, Hur", "Schadrach, Meschach, Abed-Nego", "Petrus, Jakobus, Johannes", "Sem, Ham, Jafet"], correct: 1 },
+  { q: "Welche Frau wurde Königin von Persien und rettete ihr Volk?", a: ["Rut", "Debora", "Esther", "Hanna"], correct: 2 },
+  { q: "Welcher Prophet fuhr in einem feurigen Wagen in den Himmel?", a: ["Jesaja", "Jeremia", "Elia", "Daniel"], correct: 2 },
+  { q: "Welcher Prophet war ein Schafhirte aus Tekoa?", a: ["Hosea", "Joel", "Amos", "Obadja"], correct: 2 },
+
+  // Sprachen & Aufbau
+  { q: "In welcher Sprache wurde das Alte Testament hauptsächlich geschrieben?", a: ["Aramäisch", "Griechisch", "Hebräisch", "Latein"], correct: 2 },
+  { q: "In welcher Sprache wurde das Neue Testament hauptsächlich geschrieben?", a: ["Hebräisch", "Aramäisch", "Griechisch", "Latein"], correct: 2 },
+
+  // Neues Testament – Geburt & frühes Leben
+  { q: "Welcher Engel verkündete Maria die Geburt Jesu?", a: ["Michael", "Gabriel", "Raphael", "Uriel"], correct: 1 },
+  { q: "Wer war der Vater von Johannes dem Täufer?", a: ["Josef", "Zacharias", "Simeon", "Hannas"], correct: 1 },
+  { q: "Welcher König wollte den neugeborenen Jesus töten?", a: ["Herodes", "Pontius Pilatus", "Cäsar Augustus", "Kaiphas"], correct: 0 },
+
+  // Wirken Jesu
+  { q: "Was war Jesu erstes Wunder laut dem Johannesevangelium?", a: ["Heilung eines Aussätzigen", "Sturmstillung", "Wasser zu Wein", "Brotvermehrung"], correct: 2 },
+  { q: "In welcher Stadt fand Jesu erstes Wunder statt?", a: ["Nazareth", "Kapernaum", "Kana", "Bethanien"], correct: 2 },
+  { q: "Wie viele Tage fastete Jesus in der Wüste?", a: ["7", "14", "30", "40"], correct: 3 },
+  { q: "Mit wie vielen Broten speiste Jesus 5000 Menschen?", a: ["2", "5", "7", "12"], correct: 1 },
+
+  // Passion & Auferstehung
+  { q: "Welcher römische Statthalter verurteilte Jesus zum Tod?", a: ["Herodes", "Pontius Pilatus", "Quirinius", "Felix"], correct: 1 },
+  { q: "Welcher Hohepriester war zur Zeit der Verurteilung Jesu im Amt?", a: ["Hannas", "Kaiphas", "Gamaliel", "Zadok"], correct: 1 },
+  { q: "In welchem Garten wurde Jesus festgenommen?", a: ["Eden", "Gethsemane", "Sharon", "Olivenhain"], correct: 1 },
+  { q: "Wo wurde Jesus gekreuzigt?", a: ["Bethanien", "Golgatha", "Bethlehem", "Emmaus"], correct: 1 },
+
+  // Apostel & Urkirche
+  { q: "Welche zwei Brüder unter den Jüngern wurden 'Donnersöhne' genannt?", a: ["Petrus und Andreas", "Jakobus und Johannes", "Simon und Judas", "Philippus und Bartholomäus"], correct: 1 },
+  { q: "Welcher Apostel war zuvor Zöllner (Steuereintreiber)?", a: ["Petrus", "Matthäus", "Andreas", "Bartholomäus"], correct: 1 },
+  { q: "Welcher Apostel zweifelte an Jesu Auferstehung?", a: ["Petrus", "Thomas", "Andreas", "Philippus"], correct: 1 },
+  { q: "Wie hieß der erste christliche Märtyrer?", a: ["Stephanus", "Jakobus", "Petrus", "Paulus"], correct: 0 },
+  { q: "Auf dem Weg in welche Stadt wurde Paulus bekehrt?", a: ["Antiochia", "Damaskus", "Korinth", "Ephesus"], correct: 1 },
+  { q: "Wer war der Lehrer des jungen Saulus (Paulus)?", a: ["Hillel", "Schammai", "Gamaliel", "Hannas"], correct: 2 },
+  { q: "Wo wurden die Jünger zum ersten Mal 'Christen' genannt?", a: ["Jerusalem", "Antiochia", "Rom", "Korinth"], correct: 1 },
+  { q: "Auf welcher Insel war Johannes verbannt, als er die Offenbarung schrieb?", a: ["Zypern", "Kreta", "Patmos", "Malta"], correct: 2 },
+
+  // Aufbau der Bibel & Feste
+  { q: "Welches der vier Evangelien ist das kürzeste?", a: ["Matthäus", "Markus", "Lukas", "Johannes"], correct: 1 },
+  { q: "Wie viele Briefe werden traditionell Paulus zugeschrieben?", a: ["7", "10", "13", "21"], correct: 2 },
+  { q: "Welches ist das letzte Buch der Bibel?", a: ["Johannes", "Hebräer", "Jakobus", "Offenbarung"], correct: 3 },
+  { q: "Wie viele Bücher hat das Neue Testament?", a: ["12", "21", "27", "39"], correct: 2 },
+  { q: "Was feiert man an Pfingsten?", a: ["Geburt Jesu", "Auferstehung", "Aussendung des Heiligen Geistes", "Taufe Jesu"], correct: 2 }
+];
+
+// Active questions for the current game (15 selected)
+let QUESTIONS = [];
+// Track indices used across the whole session
+let usedQuestions = new Set();
+
+function pickFresh(pool, usedSet, count) {
+  // If not enough fresh questions left, reset that pool
+  if (pool.length - usedSet.size < count) usedSet.clear();
+  const available = pool.map((_, i) => i).filter(i => !usedSet.has(i));
+  // Shuffle available indices
+  for (let i = available.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [available[i], available[j]] = [available[j], available[i]];
+  }
+  const picked = available.slice(0, count);
+  picked.forEach(i => usedSet.add(i));
+  return picked.map(i => pool[i]);
+}
+
+function buildQuestionSet() {
+  QUESTIONS = pickFresh(QUESTION_POOL, usedQuestions, 15);
+}
+
+// ==================== SELECTION QUESTION POOL ====================
+// Auswahlfragen – Reihenfolge richtig ordnen, schnellster Kandidat darf spielen
+const SELECTION_POOL = [
+  {
+    prompt: "Ordne chronologisch (vom frühesten zum spätesten Ereignis):",
+    items: ["Sintflut", "Schöpfung der Welt", "Berufung Abrahams", "Turmbau zu Babel"],
+    answer: "BADC"
+  },
+  {
+    prompt: "Ordne die Patriarchen nach Reihenfolge ihrer Geburt:",
+    items: ["Jakob", "Abraham", "Josef", "Isaak"],
+    answer: "BDAC"
+  },
+  {
+    prompt: "Ordne chronologisch im Leben Jesu:",
+    items: ["Kreuzigung", "Taufe im Jordan", "Geburt in Bethlehem", "Versuchung in der Wüste"],
+    answer: "CBDA"
+  },
+  {
+    prompt: "Ordne die Könige Israels in der Reihenfolge ihrer Herrschaft:",
+    items: ["Salomo", "David", "Rehabeam", "Saul"],
+    answer: "DBAC"
+  },
+  {
+    prompt: "Ordne die ägyptischen Plagen in der richtigen Reihenfolge:",
+    items: ["Heuschrecken", "Wasser zu Blut", "Tod der Erstgeborenen", "Frösche"],
+    answer: "BDAC"
+  },
+  {
+    prompt: "Ordne diese Personen nach ihrem Erscheinen in der Bibel:",
+    items: ["König David", "Mose", "Apostel Petrus", "Adam"],
+    answer: "DBAC"
+  },
+  {
+    prompt: "Ordne die vier Evangelien wie sie in der Bibel stehen:",
+    items: ["Lukas", "Matthäus", "Johannes", "Markus"],
+    answer: "BDAC"
+  },
+  {
+    prompt: "Ordne chronologisch (von Karwoche bis Pfingsten):",
+    items: ["Pfingsten", "Auferstehung", "Himmelfahrt", "Letztes Abendmahl"],
+    answer: "DBCA"
+  },
+  {
+    prompt: "Ordne chronologisch im Wirken Jesu:",
+    items: ["Verklärung", "Bergpredigt", "Versuchung in der Wüste", "Einzug in Jerusalem"],
+    answer: "CBAD"
+  },
+  {
+    prompt: "Ordne diese Ereignisse chronologisch:",
+    items: ["Babylonisches Exil", "Bau des ersten Tempels", "Auszug aus Ägypten", "Geburt Jesu"],
+    answer: "CBAD"
+  },
+  {
+    prompt: "Ordne diese biblischen Frauen chronologisch:",
+    items: ["Maria, Mutter Jesu", "Eva", "Esther", "Sara"],
+    answer: "BDCA"
+  },
+  {
+    prompt: "Ordne die fünf Bücher Mose (nur 4 davon):",
+    items: ["Numeri (4. Mose)", "Genesis (1. Mose)", "Levitikus (3. Mose)", "Exodus (2. Mose)"],
+    answer: "BDCA"
+  }
+];
+
+let usedSelections = new Set();
+
+function pickFreshSelection() {
+  if (usedSelections.size >= SELECTION_POOL.length) usedSelections.clear();
+  const available = SELECTION_POOL.map((_, i) => i).filter(i => !usedSelections.has(i));
+  const idx = available[Math.floor(Math.random() * available.length)];
+  usedSelections.add(idx);
+  return SELECTION_POOL[idx];
+}
+
+const PRIZES = [50, 100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 500000, 1000000];
+const SAFE_LEVELS = [4, 9]; // index 4 = 500€, index 9 = 16.000€
+
+// ==================== STATE ====================
+let state = {
+  currentQ: 0,
+  lockedIdx: null,
+  revealed: false,
+  jokers: { '50': false, 'telefon': false },
+  eliminated: [],
+  currentSelection: null
+};
+
+// ==================== AUDIO ====================
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { audioCtx = null; }
+  }
+}
+function tone(freq, dur, type='sine', vol=0.15, when=0) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const t0 = audioCtx.currentTime + when;
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol, t0 + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.05);
+}
+function sndLock() {
+  initAudio();
+  tone(220, 0.15, 'square', 0.1, 0);
+  tone(330, 0.2, 'square', 0.08, 0.1);
+}
+function sndCorrect() {
+  initAudio();
+  tone(523, 0.15, 'triangle', 0.15, 0);
+  tone(659, 0.15, 'triangle', 0.15, 0.12);
+  tone(784, 0.15, 'triangle', 0.15, 0.24);
+  tone(1047, 0.4, 'triangle', 0.2, 0.36);
+}
+function sndWrong() {
+  initAudio();
+  tone(220, 0.3, 'sawtooth', 0.18, 0);
+  tone(165, 0.5, 'sawtooth', 0.18, 0.2);
+}
+function sndJoker() {
+  initAudio();
+  tone(880, 0.08, 'sine', 0.12, 0);
+  tone(1320, 0.12, 'sine', 0.12, 0.06);
+}
+function sndWin() {
+  initAudio();
+  const notes = [523, 659, 784, 1047, 1319, 1568, 2093];
+  notes.forEach((n, i) => tone(n, 0.18, 'triangle', 0.18, i * 0.12));
+}
+
+// ==================== RENDERING ====================
+function fmt(n) {
+  return n.toLocaleString('de-DE');
+}
+
+function renderLadder() {
+  const ladder = document.getElementById('ladder');
+  ladder.innerHTML = '';
+  PRIZES.forEach((p, i) => {
+    const step = document.createElement('div');
+    step.className = 'step';
+    if (SAFE_LEVELS.includes(i)) step.classList.add('safe');
+    if (i === state.currentQ) step.classList.add('current');
+    if (i < state.currentQ) step.classList.add('won');
+    step.innerHTML = `<span class="num">${i + 1}</span><span class="amount">${fmt(p)} €</span>`;
+    ladder.appendChild(step);
+  });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.currentQ];
+  document.getElementById('qNumber').textContent =
+    `FRAGE ${state.currentQ + 1} · UM ${fmt(PRIZES[state.currentQ])} €`;
+  document.getElementById('qText').textContent = q.q;
+  document.querySelectorAll('.answer').forEach((el, i) => {
+    el.classList.remove('locked', 'correct', 'wrong', 'eliminated');
+    el.querySelector('.text').textContent = q.a[i];
+  });
+}
+
+function renderJokers() {
+  document.getElementById('joker-50').classList.toggle('used', state.jokers['50']);
+  document.getElementById('joker-telefon').classList.toggle('used', state.jokers['telefon']);
+}
+
+// ==================== GAME LOGIC ====================
+function lockAnswer(idx) {
+  if (state.revealed || state.eliminated.includes(idx)) return;
+  // Unlock previous
+  if (state.lockedIdx !== null) {
+    document.querySelector(`.answer[data-idx="${state.lockedIdx}"]`).classList.remove('locked');
+  }
+  state.lockedIdx = idx;
+  document.querySelector(`.answer[data-idx="${idx}"]`).classList.add('locked');
+  sndLock();
+}
+
+function reveal() {
+  if (state.revealed || state.lockedIdx === null) return;
+  state.revealed = true;
+  const q = QUESTIONS[state.currentQ];
+  const lockedEl = document.querySelector(`.answer[data-idx="${state.lockedIdx}"]`);
+  const correctEl = document.querySelector(`.answer[data-idx="${q.correct}"]`);
+
+  lockedEl.classList.remove('locked');
+
+  if (state.lockedIdx === q.correct) {
+    // Correct
+    setTimeout(() => {
+      correctEl.classList.add('correct');
+      sndCorrect();
+    }, 400);
+  } else {
+    // Wrong
+    setTimeout(() => {
+      lockedEl.classList.add('wrong');
+      sndWrong();
+      setTimeout(() => correctEl.classList.add('correct'), 1200);
+    }, 400);
+  }
+}
+
+function nextQuestion() {
+  const q = QUESTIONS[state.currentQ];
+  if (!state.revealed) return;
+
+  // Check if game ended
+  if (state.lockedIdx !== q.correct) {
+    // Wrong → next player gets a turn via selection round
+    resetGame();
+    return;
+  }
+
+  state.currentQ++;
+  if (state.currentQ >= QUESTIONS.length) {
+    showWin();
+    return;
+  }
+
+  state.lockedIdx = null;
+  state.revealed = false;
+  state.eliminated = [];
+  renderQuestion();
+  renderLadder();
+}
+
+function showWin() {
+  document.getElementById('winAmount').textContent = fmt(PRIZES[PRIZES.length - 1]) + ' €';
+  document.getElementById('winOverlay').classList.add('show');
+  sndWin();
+  spawnConfetti();
+}
+
+// ==================== SELECTION ROUND ====================
+function showSelection() {
+  const sel = pickFreshSelection();
+  state.currentSelection = sel;
+  document.getElementById('selectionPrompt').textContent = sel.prompt;
+  const itemsContainer = document.getElementById('selectionItems');
+  itemsContainer.innerHTML = '';
+  ['A', 'B', 'C', 'D'].forEach((letter, i) => {
+    const item = document.createElement('div');
+    item.className = 'selection-item';
+    item.innerHTML = `<span class="letter">${letter}:</span>${sel.items[i]}`;
+    itemsContainer.appendChild(item);
+  });
+  const result = document.getElementById('selectionResult');
+  result.textContent = '';
+  result.classList.remove('show');
+  document.getElementById('selectionOverlay').classList.add('show');
+}
+
+function revealSelection() {
+  if (!state.currentSelection) return;
+  const result = document.getElementById('selectionResult');
+  if (result.classList.contains('show')) return; // already revealed
+  const ans = state.currentSelection.answer;
+  result.textContent = `Richtige Reihenfolge:  ${ans[0]}  →  ${ans[1]}  →  ${ans[2]}  →  ${ans[3]}`;
+  result.classList.add('show');
+  sndCorrect();
+}
+
+function proceedToGame() {
+  document.getElementById('selectionOverlay').classList.remove('show');
+}
+
+function resetGame() {
+  state = {
+    currentQ: 0,
+    lockedIdx: null,
+    revealed: false,
+    jokers: { '50': false, 'telefon': false },
+    eliminated: [],
+    currentSelection: null
+  };
+  buildQuestionSet();
+  document.getElementById('winOverlay').classList.remove('show');
+  document.querySelectorAll('.confetti').forEach(c => c.remove());
+  renderQuestion();
+  renderLadder();
+  renderJokers();
+  showSelection();
+}
+
+// ==================== JOKERS ====================
+function jokerFiftyFifty() {
+  if (state.jokers['50'] || state.revealed) return;
+  state.jokers['50'] = true;
+  const q = QUESTIONS[state.currentQ];
+  // Pick 2 wrong answers to eliminate
+  const wrong = [0,1,2,3].filter(i => i !== q.correct);
+  // Randomly pick 2
+  wrong.sort(() => Math.random() - 0.5);
+  const toEliminate = wrong.slice(0, 2);
+  state.eliminated = toEliminate;
+  toEliminate.forEach(i => {
+    const el = document.querySelector(`.answer[data-idx="${i}"]`);
+    el.classList.add('eliminated');
+    el.querySelector('.text').textContent = '';
+  });
+  sndJoker();
+  renderJokers();
+}
+
+function jokerTelefon() {
+  if (state.jokers['telefon'] || state.revealed) return;
+  state.jokers['telefon'] = true;
+  sndJoker();
+  renderJokers();
+  // Visual cue – pulse the question briefly
+  const qBox = document.querySelector('.question-box');
+  qBox.style.boxShadow = '0 0 80px rgba(255, 211, 74, 0.8), inset 0 0 30px rgba(0,0,0,0.4)';
+  setTimeout(() => { qBox.style.boxShadow = ''; }, 2000);
+  alert('📞 Jugendleiter-Joker aktiviert!\n\nFrag jetzt die Jugendleiter um Hilfe (max. 30 Sekunden).');
+}
+
+// ==================== CONFETTI ====================
+function spawnConfetti() {
+  const colors = ['#ffd34a', '#fff09a', '#ff8a1c', '#2bd45a', '#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.top = -20 + 'px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (3 + Math.random() * 4) + 's';
+    c.style.animationDelay = Math.random() * 3 + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.getElementById('winOverlay').appendChild(c);
+  }
+}
+
+// ==================== EVENT LISTENERS ====================
+document.querySelectorAll('.answer').forEach(el => {
+  el.addEventListener('click', () => {
+    initAudio();
+    const idx = parseInt(el.dataset.idx);
+    lockAnswer(idx);
+  });
+});
+
+document.getElementById('btnReveal').addEventListener('click', () => { initAudio(); reveal(); });
+document.getElementById('btnNext').addEventListener('click', () => { initAudio(); nextQuestion(); });
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (confirm('Spiel neu starten?')) resetGame();
+});
+
+document.getElementById('joker-50').addEventListener('click', () => { initAudio(); jokerFiftyFifty(); });
+document.getElementById('joker-telefon').addEventListener('click', () => { initAudio(); jokerTelefon(); });
+
+document.getElementById('btnWinClose').addEventListener('click', resetGame);
+
+document.getElementById('btnSelectionReveal').addEventListener('click', () => { initAudio(); revealSelection(); });
+document.getElementById('btnSelectionContinue').addEventListener('click', () => { initAudio(); proceedToGame(); });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  initAudio();
+  const key = e.key.toLowerCase();
+  const selectionOpen = document.getElementById('selectionOverlay').classList.contains('show');
+
+  // Selection overlay: only Enter (reveal) and Space (continue) are active
+  if (selectionOpen) {
+    if (e.key === 'Enter') {
+      revealSelection();
+    } else if (e.key === ' ') {
+      e.preventDefault();
+      proceedToGame();
+    } else if (key === 'f') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+    return;
+  }
+
+  // Main game shortcuts
+  if (['a','b','c','d'].includes(key)) {
+    lockAnswer({a:0,b:1,c:2,d:3}[key]);
+  } else if (key === '1') {
+    jokerFiftyFifty();
+  } else if (key === '3') {
+    jokerTelefon();
+  } else if (e.key === 'Enter') {
+    reveal();
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    nextQuestion();
+  } else if (key === 'f') {
+    // Toggle fullscreen
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+});
+
+// ==================== INIT ====================
+resetGame();
+</script>
+</body>
+</html>
